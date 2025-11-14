@@ -126,32 +126,45 @@ namespace ClientManagementApp
                     return;
                 }
 
-                
-                Client selectedClient = (Client)dgvClients.SelectedRows[0].DataBoundItem;
+                if (dgvClients.SelectedRows.Count == 0 || dgvClients.CurrentRow == null)
+                { 
+                    MessageBox.Show("Please select a client to edit.", "Warning",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+
+                }
+
+                int rowIndex = dgvClients.CurrentRow.Index;
+
+                if (rowIndex < 0 || rowIndex >= clients.Count)
+                {
+                    MessageBox.Show("Invalid row selected. Please try again.", "Warning",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                Client selectedClient = clients[rowIndex];
 
                 EditClientForm editForm = new EditClientForm(selectedClient);
 
                 if (editForm.ShowDialog() == DialogResult.OK)
                 {
-                    
-                    int index = clients.FindIndex(c => c.Id == selectedClient.Id);
-                    if (index != -1)
-                    {
-                        clients[index] = editForm.UpdatedClient;
-                        RefreshDataGridView();
-                        MessageBox.Show("Client updated successfully!", "Success",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
+                    clients[rowIndex] = editForm.UpdatedClient;
+                    RefreshDataGridView();
+                    MessageBox.Show("Client updated successfully!", "Success",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error editing client: {ex.Message}", "Error",
+                MessageBox.Show($"Error editing client: {ex.Message}\n\nDetails: {ex.StackTrace}", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        
+
+
+
         private void btnDelete_Click(object sender, EventArgs e)
         {
             try
